@@ -1,36 +1,154 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QR Code Scanner App
 
-## Getting Started
+A Next.js TypeScript single-page application that allows users to scan QR codes and validate them against previously scanned codes using localStorage.
 
-First, run the development server:
+## Features
 
+- **Login System**: Simple authentication (demo credentials: username=`Scaning@admin.com`, password=`ScanAdmin123@!#`)
+- **QR Code Scanner**: Camera-based QR code scanning using html5-qrcode library
+- **Validation**: Tracks scanned QR codes in localStorage
+  - First scan: Shows **VALID** ✅
+  - Subsequent scans: Shows **INVALID** ❌
+- **Scanner Controls**: Start/Stop scanner with clear visual feedback
+- **Responsive Design**: Works on desktop and mobile devices
+- **Clean UI**: Minimal, functional interface with color-coded results
+
+## Prerequisites
+
+- Node.js (v18 or higher recommended)
+- A modern web browser with camera support
+- Camera permissions must be granted when prompted
+
+## Installation
+
+1. Navigate to the project directory:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd qr-scanner-app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies (if not already installed):
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The project uses:
+- `next` - React framework
+- `react` & `react-dom` - React libraries
+- `html5-qrcode` - QR code scanning library
+- `typescript` - Type safety
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Running the Application
 
-## Learn More
+1. Start the development server:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+2. Open your browser and navigate to:
+```
+http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. You should see the login page
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Usage
 
-## Deploy on Vercel
+### Step 1: Login
+- Enter username: `Scaning@admin.com`
+- Enter password: `ScanAdmin123@!#`
+- Click "Login"
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Step 2: Scan QR Codes
+1. Click the **"Scan QR Code"** button
+2. Allow camera permissions when prompted
+3. Point your camera at a QR code
+4. The scanner will automatically detect and process the QR code
+5. Results will be displayed:
+   - **VALID** (green) - First time scanning this QR code
+   - **INVALID** (red) - QR code has been scanned before
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Step 3: Scanner Controls
+- Click **"Stop Scanner"** to close the camera
+- Click **"Scan QR Code"** again to scan another code
+- Click **"Logout"** to return to the login screen
+
+## How It Works
+
+### localStorage Tracking
+- Scanned QR codes are stored in browser localStorage under the key `scannedQRCodes`
+- Each unique QR code text is stored as an array item
+- Data persists across browser sessions (until cleared)
+
+### Clearing Scanned History
+To reset the validation history, open browser console and run:
+```javascript
+localStorage.removeItem('scannedQRCodes');
+```
+
+Or clear all browser data for localhost.
+
+## Browser Compatibility
+
+The app requires:
+- Modern browser with camera API support (Chrome, Firefox, Safari, Edge)
+- HTTPS or localhost (camera access requires secure context)
+- Camera permissions granted
+
+## Project Structure
+
+```
+qr-scanner-app/
+├── src/
+│   └── app/
+│       ├── page.tsx          # Main application component
+│       ├── globals.css        # Application styles
+│       ├── layout.tsx         # Root layout
+│       └── favicon.ico
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+## Building for Production
+
+To create a production build:
+```bash
+npm run build
+```
+
+To start the production server:
+```bash
+npm start
+```
+
+## Troubleshooting
+
+### Camera Not Working
+- Ensure camera permissions are granted
+- Check if another application is using the camera
+- Try using HTTPS instead of HTTP (required for camera access on non-localhost)
+- Refresh the page and try again
+
+### QR Code Not Detected
+- Ensure good lighting conditions
+- Hold the QR code steady within the scanner box
+- Try moving the QR code closer or further from the camera
+- Ensure the QR code is not damaged or distorted
+
+### Scanner Won't Start
+- Check browser console for errors
+- Verify camera permissions in browser settings
+- Try a different browser
+- Ensure no other tab/app is using the camera
+
+## Technologies Used
+
+- **Next.js 15** - React framework with App Router
+- **React 19** - UI library
+- **TypeScript** - Type-safe JavaScript
+- **html5-qrcode** - QR code scanning library
+- **CSS3** - Styling with gradients and animations
+
+## License
+
+This is a demo application for educational purposes.
