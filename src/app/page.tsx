@@ -13,6 +13,14 @@ export default function Home() {
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [scanStatus, setScanStatus] = useState<'VALID' | 'INVALID' | null>(null);
   const [html5QrCode, setHtml5QrCode] = useState<Html5Qrcode | null>(null);
+  const [cameraError, setCameraError] = useState<string>('');
+
+  useEffect(() => {
+    // Initialize scanner when isScanning becomes true
+    if (isScanning && !html5QrCode) {
+      initializeScanner();
+    }
+  }, [isScanning]);
 
   useEffect(() => {
     // Cleanup scanner on unmount
@@ -41,13 +49,31 @@ export default function Home() {
     setPassword('');
     setScanResult(null);
     setScanStatus(null);
+    setCameraError('');
     if (isScanning) {
       stopScanner();
     }
   };
 
-  const startScanner = async () => {
+  const startScanner = () => {
+    setCameraError('');
+    setScanResult(null);
+    setScanStatus(null);
+    setIsScanning(true);
+  };
+
+  const initializeScanner = async () => {
     try {
+      // If there's an existing scanner, stop it first
+      if (html5QrCode) {
+        try {
+          await html5QrCode.stop();
+          await html5QrCode.clear();
+        } catch (e) {
+          console.log('No active scanner to stop');
+        }
+      }
+
       const qrCodeScanner = new Html5Qrcode('qr-reader');
       setHtml5QrCode(qrCodeScanner);
 
@@ -65,13 +91,25 @@ export default function Home() {
           // Scanning errors are normal, ignore them
         }
       );
-
-      setIsScanning(true);
-      setScanResult(null);
-      setScanStatus(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error starting scanner:', err);
-      alert('Failed to start camera. Please ensure camera permissions are granted.');
+
+      let errorMessage = 'Failed to start camera. ';
+
+      if (err.name === 'NotAllowedError' || err.message?.includes('Permission')) {
+        errorMessage += 'Camera permission was denied. Please allow camera access in your browser settings and try again.';
+      } else if (err.name === 'NotFoundError' || err.message?.includes('NotFoundError')) {
+        errorMessage += 'No camera found on this device.';
+      } else if (err.name === 'NotReadableError' || err.message?.includes('NotReadableError')) {
+        errorMessage += 'Camera is already in use by another application. Please close other apps using the camera and try again.';
+      } else if (err.message?.includes('secure')) {
+        errorMessage += 'Camera access requires HTTPS. Please use a secure connection.';
+      } else {
+        errorMessage += 'Please ensure camera permissions are granted and try again.';
+      }
+
+      setCameraError(errorMessage);
+      setIsScanning(false);
     }
   };
 
@@ -79,9 +117,12 @@ export default function Home() {
     if (html5QrCode) {
       try {
         await html5QrCode.stop();
+        await html5QrCode.clear();
         setIsScanning(false);
+        setHtml5QrCode(null);
       } catch (err) {
         console.error('Error stopping scanner:', err);
+        setIsScanning(false);
       }
     }
   };
@@ -155,6 +196,12 @@ export default function Home() {
           <button onClick={startScanner} className="btn btn-primary btn-large">
             Scan QR Code
           </button>
+        )}
+
+        {cameraError && (
+          <div className="error-message">
+            {cameraError}
+          </div>
         )}
 
         {isScanning && (
